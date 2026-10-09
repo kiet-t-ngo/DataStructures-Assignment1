@@ -21,7 +21,6 @@ struct FlightInfo* CreateFlight (char destination, char date, float fare);
 struct FlightInfo* FindFlight(struct FlightInfo* head, const char* destination, const char* date);
 
 
-
 struct FlightInfo* CreateFlight(char* destination, char* date, float fare)
 {
     struct FlightInfo* newFlight = (struct FlightInfo*)malloc(sizeof(struct FlightInfo));
