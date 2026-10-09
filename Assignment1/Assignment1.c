@@ -111,11 +111,41 @@ struct FlightInfo* FindFlight(struct FlightInfo* head, char* destination, char* 
 
 void PrintList(struct FlightInfo* head) 
 {
-    
+    struct FlightInfo* current = head;
+    printf("Forward\n");
+    while (current != NULL) 
+    {
+        printf("Destination: %s, Date: %s, Fare: %.2f\n", current->Destination, current->Date, current->Fare);
+        printf("--------------------------------------------------------------\n");
+        current = current->Next;
+    }
 }
-void PrintReverseList(struct FlightInfo* tail)
+/*void PrintReverseList(struct FlightInfo* tail)
 {
-    
+    printf("Backwards\n");
+    struct FlightInfo* current = tail;
+    while (current != NULL)
+    {
+        printf("Destination: %s, Date: %s, Fare: %.2f\n", current->Destination, current->Date, current->Fare);
+        printf("--------------------------------------------------------------\n");
+        current = current->Prev;
+    }
+}*/
+
+// Free all dynamically allocated memory in the list
+void FreeList(struct FlightInfo* head) {
+
+    struct FlightInfo* current = head;
+    struct FlightInfo* tempNode;
+
+    while (current != NULL) {
+        tempNode = current->Next;
+        free(current->Destination);
+        free(current->Date);
+        free(current);
+        current = tempNode;
+    }
+
 }
 
 
@@ -125,6 +155,39 @@ int main(void)
     struct FlightInfo* head = NULL;
     struct FlightInfo* tail = NULL;
 
+    // Testing
+    printf("=== TEST 1: Insert into an Empty List ===\n");
+    printf("Expected: Only Chicago ($300.00). Head and Tail should point to Chicago\n");
+    InsertSortedByFare(&head, &tail, "Chicago", "15052026", 300.00f);
+    PrintList(head);
+    //PrintReverseList(tail);
+
+    printf("=== TEST 2: Insert with a Lower Fare (New Head) ===\n");
+    printf("Expected Order: New York ($150.00) -> Chicago ($300.00)\n");
+    InsertSortedByFare(&head, &tail, "New York", "11052026", 150.00f);
+    PrintList(head);
+    //PrintReverseList(tail);
+
+    printf("=== TEST 3: Insert with a Higher Fare (New Tail) ===\n");
+    printf("Expected Order: New York ($150.00) -> Chicago ($300.00) -> Texas ($600.00)\n");
+    InsertSortedByFare(&head, &tail, "Texas", "12052026", 600.00f);
+    PrintList(head);
+    //PrintReverseList(tail);
+
+    printf("=== TEST 4: Insert in the Middle ===\n");
+    printf("Expected Order: New York ($150.00) -> Chicago ($300.00) -> Florida ($450.00) -> Texas ($600.00)\n");
+    InsertSortedByFare(&head, &tail, "Florida", "13052026", 450.00f);
+    PrintList(head);
+    //PrintReverseList(tail);
+
+    printf("=== TEST 5: Insert with Duplicate Fare ===\n");
+    printf("Expected Order should handle the duplicate $300.00 next to Chicago since they are the same fare amount\n");
+    InsertSortedByFare(&head, &tail, "California", "10052026", 300.00f);
+    PrintList(head);
+    //PrintReverseList(tail);
+
+    // Free the list memory
+    FreeList(head);
 
     return 0;
 }
