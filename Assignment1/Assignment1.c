@@ -22,6 +22,7 @@ struct FlightInfo* CreateFlight (char* destination, char* date, float fare);
 void InsertSortedByFare(struct FlightInfo** head, struct FlightInfo** tail, char* destination, char* date, float fare);
 void InsertSortedByDestination(struct FlightInfo** head, struct FlightInfo** tail, char* destination, char* date, float fare);
 struct FlightInfo* FindFlight(struct FlightInfo* head, char* destination, char* date);
+void ReadInputString(char* buffer, int size);
 
 // allocates and initializes a new FlightInfo node
 struct FlightInfo* CreateFlight(char* destination, char* date, float fare)
@@ -164,21 +165,21 @@ struct FlightInfo* FindFlight(struct FlightInfo* head, char* destination, char* 
 void PrintList(struct FlightInfo* head) 
 {
     struct FlightInfo* current = head;
-    printf("Forward\n");
+    //printf("\nForward");
     while (current != NULL) 
     {
-        printf("Destination: %s, Date: %s, Fare: %.2f\n", current->Destination, current->Date, current->Fare);
+        printf("\nDestination: %s, Date: %s, Fare: %.2f\n", current->Destination, current->Date, current->Fare);
         printf("--------------------------------------------------------------\n");
         current = current->Next;
     }
 }
 /*void PrintReverseList(struct FlightInfo* tail)
 {
-    printf("Backwards\n");
+    printf("\nBackwards");
     struct FlightInfo* current = tail;
     while (current != NULL)
     {
-        printf("Destination: %s, Date: %s, Fare: %.2f\n", current->Destination, current->Date, current->Fare);
+        printf("\nDestination: %s, Date: %s, Fare: %.2f\n", current->Destination, current->Date, current->Fare);
         printf("--------------------------------------------------------------\n");
         current = current->Prev;
     }
@@ -200,13 +201,91 @@ void FreeList(struct FlightInfo* head) {
 
 }
 
+// read user string input
+// buffer will point to char array where text will be stored
+// size is the maximum number of characters the buffer can hold
+void ReadInputString(char* buffer, int size) 
+{
+    // read user input and ensures its valid or not empty
+    if (fgets(buffer, size, stdin) != NULL) 
+    {
+        // Note: Currently Buffer size is too small so it skips fare. The input filled buffer and left \n in stdin
+        // Can't increase buffer size cuz requirements state destination[15] and date[9] otherwise it would be easily fixed
+        size_t length = strlen(buffer); // calculates the length of the string currently stored inside buffer and saves into length variable
+        // checks if string is not empty and if the last character read is \n, if its true than replace the trailing \n with a \0
+        if (length > 0 && buffer[length - 1] == '\n') {
+            buffer[length - 1] = '\0';
+        }
+        else
+        {
+            // Clears out remaining characters inside stdin until it reachs a \n or end of file
+            int c;
+            while ((c = getchar()) != '\n' && c != EOF);
+        }
+        // From GetString() example demo, gets rid of trailing \n from fgets
+        // Note: would work if i could increase buffer size
+        //buffer[strcspn(buffer, "\n")] = '\0';
+    }
+    
+}
 
 int main(void)
 {
     // list pointers
-    struct FlightInfo* head = NULL;
-    struct FlightInfo* tail = NULL;
+    //struct FlightInfo* head = NULL;
+    //struct FlightInfo* tail = NULL;
 
+    struct FlightInfo* fareHead = NULL;
+    struct FlightInfo* fareTail = NULL;
+
+    struct FlightInfo* destinationHead = NULL;
+    struct FlightInfo* destinationTail = NULL;
+
+    char destination[15]; // max 15 chars
+    char date[9]; // max 9 chars in length
+    char fareBuffer[64]; // reading fare as a string instead of a float
+    float fare;
+
+    // Keep asking for flight information until user enters '.' to exit, then display flight details
+    while (1)
+    {
+        printf("Enter Destination: ");
+        // Calls ReadInputString() to get destination input from user
+        ReadInputString(destination, sizeof(destination));
+        // Exit while loop if input from user is '.'
+        if (strcmp(destination, ".") == 0) 
+        {
+            break;
+        }
+
+        printf("Enter Date: ");
+        // Calls ReadInputString() to get date input from user
+        ReadInputString(date, sizeof(date));
+        // Exit while loop if input from user is '.'
+        if (strcmp(date, ".") == 0) {
+            break;
+        }
+
+        printf("Enter fare: ");
+        // Calls ReadInputString() to get fare input from user
+        // store fare input inside fareBuffer as characters instead of a float
+        ReadInputString(fareBuffer, sizeof(fareBuffer));
+        // Gets ASCII value of the string and converts it to float value 
+        fare = (float)atof(fareBuffer);
+        
+        
+        // insert flight details into sorted fare and destination node
+        InsertSortedByFare(&fareHead, &fareTail, destination, date, fare);
+        InsertSortedByDestination(&destinationHead, &destinationTail, destination, date, fare);
+    }
+
+    // print both sorted lists
+    printf("\nFlights Sorted By Fare:");
+    PrintList(fareHead);
+    printf("\nFlights Sorted By Destination:");
+    PrintList(destinationHead);
+
+    /*
     // Testing
     printf("=== TEST 1: Insert into an Empty List ===\n");
     printf("Expected: Only Chicago ($300.00). Head and Tail should point to Chicago\n");
@@ -240,6 +319,7 @@ int main(void)
 
     // Free the list memory
     FreeList(head);
+    */
 
     return 0;
 }
