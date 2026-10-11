@@ -20,6 +20,7 @@ void PrintReverseList(struct FlightInfo* tail);
 void FreeList(struct FlightInfo* head);
 struct FlightInfo* CreateFlight (char* destination, char* date, float fare);
 void InsertSortedByFare(struct FlightInfo** head, struct FlightInfo** tail, char* destination, char* date, float fare);
+void InsertSortedByDestination(struct FlightInfo** head, struct FlightInfo** tail, char* destination, char* date, float fare);
 struct FlightInfo* FindFlight(struct FlightInfo* head, char* destination, char* date);
 
 // allocates and initializes a new FlightInfo node
@@ -104,11 +105,62 @@ void InsertSortedByFare(struct FlightInfo** head, struct FlightInfo** tail, char
     }
 }
 
+// inserts a flight node into a sorted destination list in ascending order
+void InsertSortedByDestination(struct FlightInfo** head, struct FlightInfo** tail, char* destination, char* date, float fare)
+{
+    struct FlightInfo* newFlight = CreateFlight(destination, date, fare);
+    // list is empty
+    if (*head == NULL)
+    {
+        // set new nodes to head and tail
+        *head = newFlight;
+        *tail = newFlight;
+        // set next and prev pointers to NULL
+        newFlight->Next = NULL;
+        newFlight->Prev = NULL;
+        return;
+    }
+
+    struct FlightInfo* current = *head;
+
+    // compares flight destinations and keep going until we find a node with a flight destination 
+    // that comes before or equal to the new flights destination
+    while (current != NULL && strcmp(current->Destination, newFlight->Destination) <= 0)
+    {
+        current = current->Next;
+    }
+    // insert at head
+    if (current == *head)
+    {
+        newFlight->Next = *head;
+        newFlight->Prev = NULL;
+        (*head)->Prev = newFlight;
+        *head = newFlight;
+    }
+    // if we reach the end of the list, insert at tail if current postion == NULL
+    else if (current == NULL)
+    {
+        newFlight->Prev = *tail;
+        newFlight->Next = NULL; // set next to null because its at the end of the list
+        (*tail)->Next = newFlight;
+        *tail = newFlight;
+    }
+    // insert in the middle (before current)
+    else
+    {
+        newFlight->Prev = current->Prev;
+        newFlight->Next = current;
+        current->Prev->Next = newFlight;
+        current->Prev = newFlight;
+    }
+}
+
 struct FlightInfo* FindFlight(struct FlightInfo* head, char* destination, char* date)
 {
 
 }
 
+// goes thru the list starting from the head node and print the formatted list of flight details  
 void PrintList(struct FlightInfo* head) 
 {
     struct FlightInfo* current = head;
