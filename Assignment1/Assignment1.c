@@ -1,3 +1,12 @@
+/*
+ * FILE         : Assignment1
+ * PROJECT      : Data Structures - Assignment 1
+ * PROGRAMMER   : Kiet Ngo
+ * FIRST VERSION: 2026-10-07
+ * DESCRIPTION  : Flight system that asks user for flight details.
+ *              : System uses a sorted doubly linked list that can sort and inserts flight details, reads, deletes and prints them out to user
+ */
+
 #pragma warning (disable:4996)
 
 #include <stdio.h>
@@ -156,9 +165,23 @@ void InsertSortedByDestination(struct FlightInfo** head, struct FlightInfo** tai
     }
 }
 
+// search and compare flight details
 struct FlightInfo* FindFlight(struct FlightInfo* head, char* destination, char* date)
 {
+    struct FlightInfo* current = head;
 
+    // keep going through every node until it reaches the end of list
+    while (current != NULL)
+    {
+        // check and compare if the destination and date matches the current destination and date
+        if (strcmp(current->Destination, destination) == 0 && strcmp(current->Date, date) == 0) 
+        {
+            // return the pointer to that node when it finds a match
+            return current;
+        }
+        current = current->Next; // move current to next node
+    }
+    return NULL; // couldn't find a match so return NULL
 }
 
 // goes thru the list starting from the head node and print the formatted list of flight details  
@@ -245,11 +268,13 @@ int main(void)
     char date[9]; // max 9 chars in length
     char fareBuffer[64]; // reading fare as a string instead of a float
     float fare;
+    float newFare;
 
     // Keep asking for flight information until user enters '.' to exit, then display flight details
     while (1)
     {
-        printf("Enter Destination: ");
+        printf("\nEnter . to exit and find flight\n");
+        printf("\nEnter Destination: ");
         // Calls ReadInputString() to get destination input from user
         ReadInputString(destination, sizeof(destination));
         // Exit while loop if input from user is '.'
@@ -285,41 +310,54 @@ int main(void)
     printf("\nFlights Sorted By Destination:");
     PrintList(destinationHead);
 
-    /*
-    // Testing
-    printf("=== TEST 1: Insert into an Empty List ===\n");
-    printf("Expected: Only Chicago ($300.00). Head and Tail should point to Chicago\n");
-    InsertSortedByFare(&head, &tail, "Chicago", "15052026", 300.00f);
-    PrintList(head);
-    //PrintReverseList(tail);
+    // Find flight
+    printf("\n---------------Find Flight---------------");
+    printf("\nEnter Destination: ");
+    ReadInputString(destination, sizeof(destination));
+    printf("\nEnter Date: ");
+    ReadInputString(date, sizeof(date));
 
-    printf("=== TEST 2: Insert with a Lower Fare (New Head) ===\n");
-    printf("Expected Order: New York ($150.00) -> Chicago ($300.00)\n");
-    InsertSortedByFare(&head, &tail, "New York", "11052026", 150.00f);
-    PrintList(head);
-    //PrintReverseList(tail);
+    struct FlightInfo* flightFound = FindFlight(destinationHead, destination, date);
 
-    printf("=== TEST 3: Insert with a Higher Fare (New Tail) ===\n");
-    printf("Expected Order: New York ($150.00) -> Chicago ($300.00) -> Texas ($600.00)\n");
-    InsertSortedByFare(&head, &tail, "Texas", "12052026", 600.00f);
-    PrintList(head);
-    //PrintReverseList(tail);
+    if (flightFound == NULL)
+    {
+        printf("\nFlight not found");
+    }
+    // Flight was found. Display current fare and ask user to update fare
+    else
+    {
+        printf("\nCurrent fare: %.2f", flightFound->Fare);
+        printf("\nEnter a new fare: ");
+        ReadInputString(fareBuffer, sizeof(fareBuffer));
+        // Gets ASCII value of the string and converts it to float value 
+        newFare = (float)atof(fareBuffer);
+        
+        // new fare is same as old fare, so nothing was changed
+        if (newFare == flightFound->Fare)
+        {
+            printf("\nFare is the same, so fare is unchanged.");
+        }
+        // otherwise fare is new so update new fare into list and sort it
+        else
+        {
+            // store new fare into fare
+            flightFound->Fare = newFare; 
+            // Insert new fare and re sort fare list since list is not sorted with new fare
+            InsertSortedByFare(&fareHead, &fareTail, destination, date, newFare);
+            // NOTE: NEED TO DELETE OLD NODE CUZ IT DISPLAYS BOTH OLD NODE AND NEW UPDATED FARE
+        }
+    }
 
-    printf("=== TEST 4: Insert in the Middle ===\n");
-    printf("Expected Order: New York ($150.00) -> Chicago ($300.00) -> Florida ($450.00) -> Texas ($600.00)\n");
-    InsertSortedByFare(&head, &tail, "Florida", "13052026", 450.00f);
-    PrintList(head);
-    //PrintReverseList(tail);
-
-    printf("=== TEST 5: Insert with Duplicate Fare ===\n");
-    printf("Expected Order should handle the duplicate $300.00 next to Chicago since they are the same fare amount\n");
-    InsertSortedByFare(&head, &tail, "California", "10052026", 300.00f);
-    PrintList(head);
-    //PrintReverseList(tail);
+    // reprint both sorted lists
+    printf("\nFlights Sorted By Fare:");
+    PrintList(fareHead);
+    printf("\nFlights Sorted By Destination:");
+    PrintList(destinationHead);
 
     // Free the list memory
-    FreeList(head);
-    */
+    FreeList(fareHead);
+    FreeList(destinationHead);
 
     return 0;
+
 }
