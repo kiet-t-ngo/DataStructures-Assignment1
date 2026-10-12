@@ -31,6 +31,7 @@ struct FlightInfo* CreateFlight (char* destination, char* date, float fare);
 void InsertSortedByFare(struct FlightInfo** head, struct FlightInfo** tail, char* destination, char* date, float fare);
 void InsertSortedByDestination(struct FlightInfo** head, struct FlightInfo** tail, char* destination, char* date, float fare);
 struct FlightInfo* FindFlight(struct FlightInfo* head, char* destination, char* date);
+void DeleteNode(struct FlightInfo* node, struct FlightInfo** head, struct FlightInfo** tail);
 void ReadInputString(char* buffer, int size);
 
 // allocates and initializes a new FlightInfo node
@@ -184,6 +185,40 @@ struct FlightInfo* FindFlight(struct FlightInfo* head, char* destination, char* 
     return NULL; // couldn't find a match so return NULL
 }
 
+// delete nodes and relinking pointers around nodes before deleting
+void DeleteNode(struct FlightInfo* node, struct FlightInfo** head, struct FlightInfo** tail)
+{
+    // check if node to delete is empty, if it is, return
+    if (node == NULL || *head == NULL)
+    {
+        return;
+    }
+    // if it exists inbetween middle to last node, skip over current node and update pointer to point to next
+    if (node->Prev != NULL) 
+    {
+        node->Prev->Next = node->Next;
+    }
+    // otherwise point to the next node
+    else
+    {
+        *head = node->Next;
+    }
+    // if it exists inbetween the first to middle node, skip over current node update pointer to point to prev
+    if (node->Next != NULL)
+    {
+        node->Next->Prev = node->Prev;
+    }
+    // otherwise point to prev node
+    else 
+    {
+        *tail = node->Prev;
+    }
+    // Free the list memory
+    free(node->Destination);
+    free(node->Date);
+    free(node);
+}
+
 // goes thru the list starting from the head node and print the formatted list of flight details  
 void PrintList(struct FlightInfo* head) 
 {
@@ -255,9 +290,6 @@ void ReadInputString(char* buffer, int size)
 int main(void)
 {
     // list pointers
-    //struct FlightInfo* head = NULL;
-    //struct FlightInfo* tail = NULL;
-
     struct FlightInfo* fareHead = NULL;
     struct FlightInfo* fareTail = NULL;
 
@@ -342,9 +374,14 @@ int main(void)
         {
             // store new fare into fare
             flightFound->Fare = newFare; 
+
+            // Find fare node and delete it
+            struct FlightInfo* fareNode = FindFlight(fareHead, destination, date);
+            DeleteNode(fareNode, &fareHead, &fareTail);
+
             // Insert new fare and re sort fare list since list is not sorted with new fare
             InsertSortedByFare(&fareHead, &fareTail, destination, date, newFare);
-            // NOTE: NEED TO DELETE OLD NODE CUZ IT DISPLAYS BOTH OLD NODE AND NEW UPDATED FARE
+
         }
     }
 
