@@ -34,7 +34,9 @@ struct FlightInfo* FindFlight(struct FlightInfo* head, char* destination, char* 
 void DeleteNode(struct FlightInfo* node, struct FlightInfo** head, struct FlightInfo** tail);
 void ReadInputString(char* buffer, int size);
 
-// allocates and initializes a new FlightInfo node
+// METHOD       : CreateFlight()
+// DESCRIPTION  : Allocates and initializes a new FlightInfo node
+// RETURNS      : returns 0 or nothing because void
 struct FlightInfo* CreateFlight(char* destination, char* date, float fare)
 {
     // allocating memory for node
@@ -67,7 +69,9 @@ struct FlightInfo* CreateFlight(char* destination, char* date, float fare)
     return newFlight;
 }
 
-// inserts a flight node into a sorted fare list in ascending order
+// METHOD       : InsertSortedByFare()
+// DESCRIPTION  : Inserts a flight node into a sorted fare list in ascending order
+// RETURNS      : returns 0 or nothing because void
 void InsertSortedByFare(struct FlightInfo** head, struct FlightInfo** tail, char* destination, char* date, float fare)
 {
     struct FlightInfo* newFlight = CreateFlight(destination, date, fare);
@@ -116,7 +120,9 @@ void InsertSortedByFare(struct FlightInfo** head, struct FlightInfo** tail, char
     }
 }
 
-// inserts a flight node into a sorted destination list in ascending order
+// METHOD       : InsertSortedByDestination()
+// DESCRIPTION  : Inserts a flight node into a sorted destination list in ascending order
+// RETURNS      : returns 0 or nothing because void
 void InsertSortedByDestination(struct FlightInfo** head, struct FlightInfo** tail, char* destination, char* date, float fare)
 {
     struct FlightInfo* newFlight = CreateFlight(destination, date, fare);
@@ -166,7 +172,9 @@ void InsertSortedByDestination(struct FlightInfo** head, struct FlightInfo** tai
     }
 }
 
-// search and compare flight details
+// METHOD       : FindFlight()
+// DESCRIPTION  : Finds and compares flight details (destination and date) to current
+// RETURNS      : returns 0 or nothing because void
 struct FlightInfo* FindFlight(struct FlightInfo* head, char* destination, char* date)
 {
     struct FlightInfo* current = head;
@@ -185,7 +193,9 @@ struct FlightInfo* FindFlight(struct FlightInfo* head, char* destination, char* 
     return NULL; // couldn't find a match so return NULL
 }
 
-// delete nodes and relinking pointers around nodes before deleting
+// METHOD       : DeleteNode()
+// DESCRIPTION  : Delete nodes and relinking pointers around nodes before deleting
+// RETURNS      : returns 0 or nothing because void
 void DeleteNode(struct FlightInfo* node, struct FlightInfo** head, struct FlightInfo** tail)
 {
     // check if node to delete is empty, if it is, return
@@ -219,7 +229,9 @@ void DeleteNode(struct FlightInfo* node, struct FlightInfo** head, struct Flight
     free(node);
 }
 
-// goes thru the list starting from the head node and print the formatted list of flight details  
+// METHOD       : PrintList()
+// DESCRIPTION  : Goes through the list starting from the head node and prints the formatted list of flight details
+// RETURNS      : returns 0 or nothing because void
 void PrintList(struct FlightInfo* head) 
 {
     struct FlightInfo* current = head;
@@ -227,10 +239,13 @@ void PrintList(struct FlightInfo* head)
     while (current != NULL) 
     {
         printf("\nDestination: %s, Date: %s, Fare: %.2f\n", current->Destination, current->Date, current->Fare);
-        printf("--------------------------------------------------------------\n");
+        printf("--------------------------------------------------------------");
         current = current->Next;
     }
 }
+// METHOD       : PrintReverseList()
+// DESCRIPTION  : Goes through the list starting from the tail node and prints the formatted list of flight details in reverse
+// RETURNS      : returns 0 or nothing because void
 /*void PrintReverseList(struct FlightInfo* tail)
 {
     printf("\nBackwards");
@@ -243,7 +258,9 @@ void PrintList(struct FlightInfo* head)
     }
 }*/
 
-// Free all dynamically allocated memory in the list
+// METHOD       : FreeList()
+// DESCRIPTION  : Free all dynamically allocated memory in the list
+// RETURNS      : returns 0 or nothing because void
 void FreeList(struct FlightInfo* head) {
 
     struct FlightInfo* current = head;
@@ -259,15 +276,17 @@ void FreeList(struct FlightInfo* head) {
 
 }
 
-// read user string input
-// buffer will point to char array where text will be stored
-// size is the maximum number of characters the buffer can hold
+// METHOD       : ReadInputString()
+// DESCRIPTION  : Reads user input and gets rid of trailing \n from fgets
+//              : buffer will point to char array where text will be stored
+//              : size is the maximum number of characters the buffer can hold
+// RETURNS      : returns 0 or nothing because void
 void ReadInputString(char* buffer, int size) 
 {
     // read user input and ensures its valid or not empty
     if (fgets(buffer, size, stdin) != NULL) 
     {
-        // Note: Currently Buffer size is too small so it skips fare. The input filled buffer and left \n in stdin
+        // Note: Currently Buffer size is too small so it skips fare. The input filled buffer and left \n in stdin.
         // Can't increase buffer size cuz requirements state destination[15] and date[9] otherwise it would be easily fixed
         size_t length = strlen(buffer); // calculates the length of the string currently stored inside buffer and saves into length variable
         // checks if string is not empty and if the last character read is \n, if its true than replace the trailing \n with a \0
@@ -351,6 +370,7 @@ int main(void)
 
     struct FlightInfo* flightFound = FindFlight(destinationHead, destination, date);
 
+    // no flights were found if empty
     if (flightFound == NULL)
     {
         printf("\nFlight not found");
